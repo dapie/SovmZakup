@@ -21,8 +21,9 @@ namespace SovmZakup
         public MainForm()
         {
             InitializeComponent();
-
-            mainPanel.Controls.Add(zakupPage);
+            loginPanel.Visible = true;
+            panel1.Visible = false;
+            mainPanel.Controls.Add(loginPanel);
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -80,14 +81,14 @@ namespace SovmZakup
 
         private void loginButton_Click(object sender, EventArgs e)
         {
-            var connString = "Host=localhost;Port=5433;Username=postgres;Password=loveshooz;Database=sovmzak";
-            var passHash = GenerateSHA256String(textBox2.Text);
+            var connString = "Host=localhost;Port=5433;Username=postgres;Password=postgres;Database=sovmzak";
+            var passHash = GenerateSHA256String(passTB.Text);
             using (var conn = new NpgsqlConnection(connString))
             {
                 conn.Open();
                 bool blnfound = false;
                 // Retrieve all rows
-                using (var cmd = new NpgsqlCommand("SELECT * FROM users WHERE login = '" + textBox1.Text + "' AND password = '" + passHash.ToLower() + "'", conn))
+                using (var cmd = new NpgsqlCommand("SELECT * FROM users WHERE login = '" + loginTB.Text + "' AND password = '" + passHash.ToLower() + "'", conn))
                 {
                     using (var reader = cmd.ExecuteReader())
                     {
@@ -95,9 +96,12 @@ namespace SovmZakup
                         {
                             nameLabel.Text = reader.GetString(1) + " " + reader.GetString(2);
                             blnfound = true;
+                            loginPanel.Visible = false;
+                            panel1.Visible = true;
+                            mainPanel.Controls.Add(zakupPage);
                         }
                         if (blnfound == false)
-                            MessageBox.Show(passHash.ToLower(), " ", MessageBoxButtons.OK, MessageBoxIcon.Exclamation, MessageBoxDefaultButton.Button1);
+                            errorLabel.Text = "Неверный логин или пароль";
 
                         reader.Close();
                     }
@@ -124,5 +128,19 @@ namespace SovmZakup
             return result.ToString();
         }
 
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void panel7_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void label3_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
